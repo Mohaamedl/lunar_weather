@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 260 30% 12%;
+    --background-secondary: 260 30% 8%;
+    --foreground: 0 0% 98%;
+
+    --card: 260 30% 15%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 260 30% 15%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 260 50% 50%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 260 30% 25%;
+    --secondary-foreground: 0 0% 98%;
+
+    --accent: 25 100% 62%;
+    --accent-foreground: 0 0% 98%;
+
+    --muted: 260 30% 20%;
+    --muted-foreground: 0 0% 70%;
+
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 260 30% 25%;
+    --input: 260 30% 25%;
+    --ring: 260 50% 50%;
+
+    --radius: 0.5rem;
+
+    --font-sans: var(--font-montserrat), system-ui, sans-serif;
+    --font-heading: var(--font-montserrat), system-ui, sans-serif;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading;
+  }
+}
+
+.glow {
+  filter: drop-shadow(0 0 8px theme("colors.primary.DEFAULT"));
+}
+
+.glow-accent {
+  filter: drop-shadow(0 0 8px theme("colors.accent.DEFAULT"));
+}
+
+.card-hover-effect {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-hover-effect:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+.parallax-layer {
+  will-change: transform;
+}
+
+.moon-gradient {
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 0.8) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    transparent 70%
+  );
+}
+
+.weather-card {
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+
+.weather-card:hover {
+  backdrop-filter: blur(12px);
+}
+
+.page-transition-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.page-transition-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.page-transition-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.clip-path-crescent {
+  clip-path: ellipse(100% 100% at 50% 100%);
+}
+
