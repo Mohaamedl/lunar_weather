@@ -1,8 +1,10 @@
+"use client"
+
+import { MoonPhase } from "@/components/moon-phase"
 import { Card, CardContent } from "@/components/ui/card"
 import { WeatherIcon } from "@/components/weather-icon"
-import { MoonPhase } from "@/components/moon-phase"
-import { cn } from "@/lib/utils"
 import { useLocation } from "@/contexts/location-context"
+import { cn } from "@/lib/utils"
 
 interface ForecastCardProps {
   day: string

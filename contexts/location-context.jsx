@@ -1,15 +1,13 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect } from "react"
+import { createContext, useContext, useEffect, useState } from "react"
 
 const LocationContext = createContext(undefined)
 
 export function LocationProvider({ children }) {
-  // Use a simple city name without commas for better API compatibility
   const [location, setLocation] = useState("London")
   const [temperatureUnit, setTemperatureUnit] = useState("metric")
 
-  // Load saved location and unit from localStorage if available
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedLocation = localStorage.getItem("lunarweather-location")
@@ -20,7 +18,6 @@ export function LocationProvider({ children }) {
     }
   }, [])
 
-  // Save location and unit to localStorage when changed
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem("lunarweather-location", location)

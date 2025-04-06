@@ -13,13 +13,12 @@ const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-montserrat
 
 export const metadata = {
   title: "Lunar Weather",
-  description: "A celestial weather experience with moon-themed aesthetics",
-    generator: 'v0.dev'
+  description: "A celestial weather experience with moon-themed aesthetics"
 }
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en"  suppressHydrationWarning>
       <body className={`${inter.variable} ${montserrat.variable} font-sans antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
           <LocationProvider>
@@ -37,5 +36,3 @@ export default function RootLayout({ children }) {
     </html>
   )
 }
-
-import './globals.css'
