@@ -52,7 +52,7 @@ export default function Footer() {
               <div className="space-y-2">
                 <h4 className="text-sm font-semibold">Connect</h4>
                 <div className="flex space-x-4">
-                  <Link href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+                  <Link href="https://github.com/Mohaamedl/lunar_weather"  target="_blanc" className="text-muted-foreground hover:text-foreground transition-colors">
                     <Github className="h-5 w-5" />
                     <span className="sr-only">GitHub</span>
                   </Link>
