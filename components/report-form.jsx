@@ -171,7 +171,8 @@ export function ReportForm() {
 
               <div className="space-y-2">
                 <Label htmlFor="reportType">Report Type</Label>
-                <Select
+                <Select 
+              
                   value={formData.reportType}
                   onValueChange={(value) => handleSelectChange("reportType", value)}
                   required
@@ -179,7 +180,7 @@ export function ReportForm() {
                   <SelectTrigger id="reportType">
                     <SelectValue placeholder="Select issue type" />
                   </SelectTrigger>
-                  <SelectContent className="bg-background/80 backdrop-blur-sm">
+                  <SelectContent className="bg-background/80 backdrop-blur-sm min-w-[var(--radix-select-trigger-width)] ">
                     <SelectItem value="bug">Bug or Technical Error</SelectItem>
                     <SelectItem value="data">Incorrect Weather Information</SelectItem>
                     <SelectItem value="ui">Interface Issue</SelectItem>
