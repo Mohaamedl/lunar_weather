@@ -1,32 +1,33 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Shirt, Umbrella, Sun } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { formatTemperature } from "@/lib/utils/weather"
+import { Shirt, Sun, Umbrella } from "lucide-react"
 
 export function OutfitRecommendation({ temperature, condition, windSpeed, precipitation, className }) {
   // Determine clothing recommendations based on weather
   const getClothingRecommendation = () => {
-    if (temperature > 80) {
+    if (temperature > 27) { // ~80°F
       return {
         top: "Light t-shirt or tank top",
         bottom: "Shorts or light pants",
         accessories: precipitation > 30 ? "Umbrella" : "Sunglasses, hat",
         footwear: "Sandals or light shoes",
       }
-    } else if (temperature > 65) {
+    } else if (temperature > 18) { // ~65°F
       return {
         top: "T-shirt or light long sleeve",
         bottom: "Light pants or jeans",
         accessories: precipitation > 30 ? "Light jacket, umbrella" : "Sunglasses",
         footwear: "Sneakers or casual shoes",
       }
-    } else if (temperature > 50) {
+    } else if (temperature > 10) { // ~50°F
       return {
         top: "Long sleeve shirt or light sweater",
         bottom: "Jeans or pants",
         accessories: precipitation > 30 ? "Rain jacket" : windSpeed > 10 ? "Light jacket" : "Light scarf",
         footwear: "Closed shoes or boots",
       }
-    } else if (temperature > 35) {
+    } else if (temperature > 2) { // ~35°F
       return {
         top: "Sweater or light jacket",
         bottom: "Warm pants",
@@ -52,17 +53,17 @@ export function OutfitRecommendation({ temperature, condition, windSpeed, precip
         recommended: ["Indoor activities", "Museum visits", "Movie night"],
         notRecommended: ["Hiking", "Beach visits", "Outdoor sports"],
       }
-    } else if (temperature > 75 && precipitation < 30) {
+    } else if (temperature > 24 && precipitation < 30) { // Changed from 75°F to 24°C
       return {
         recommended: ["Beach visits", "Swimming", "Outdoor dining", "Park visits"],
         notRecommended: ["Strenuous hiking", "Heavy exercise outdoors"],
       }
-    } else if (temperature > 60 && precipitation < 30) {
+    } else if (temperature > 16 && precipitation < 30) { // Changed from 60°F to 16°C
       return {
         recommended: ["Hiking", "Outdoor sports", "Picnics", "Sightseeing"],
         notRecommended: ["Water activities"],
       }
-    } else if (temperature > 40) {
+    } else if (temperature > 4) { // Changed from 40°F to 4°C
       return {
         recommended: ["Light hiking", "City walks", "Shopping", "Coffee shops"],
         notRecommended: ["Water activities", "Extended outdoor stays"],
@@ -85,7 +86,7 @@ export function OutfitRecommendation({ temperature, condition, windSpeed, precip
           Today's Recommendations
         </CardTitle>
         <CardDescription>
-          Based on {temperature}°F, {condition.toLowerCase()}
+          Based on {formatTemperature(temperature, 'C')}, {condition.toLowerCase()}
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-6">

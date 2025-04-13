@@ -23,36 +23,40 @@ export function ForecastCard({
   high,
   low,
   condition,
-  moonPhase,
-  precipitation,
+  moonPhase = 0,
+  precipitation = 0,
   className,
 }: ForecastCardProps) {
-  const { unitSymbol } = useLocation()
+  const { temperatureUnit } = useLocation()
+
+  const displayHigh = temperatureUnit === "imperial" ? Math.round(high * 9/5 + 32) : high
+  const displayLow = temperatureUnit === "imperial" ? Math.round(low * 9/5 + 32) : low
 
   return (
-    <Card className={cn("overflow-hidden border-none bg-card/60 backdrop-blur-sm card-hover-effect", className)}>
-      <CardContent className="p-4">
-        <div className="flex flex-col items-center">
-          <div className="text-sm font-medium">{day}</div>
-          <div className="text-xs text-muted-foreground mb-3">{date}</div>
-
-          <WeatherIcon condition={condition} size={36} className="mb-3" />
-
-          <div className="flex items-center justify-between w-full mb-3">
-            <span className="text-sm font-medium">
-              {high}
-              {unitSymbol}
-            </span>
-            <span className="text-xs text-muted-foreground">
-              {low}
-              {unitSymbol}
-            </span>
+    <Card className={cn("relative overflow-hidden border-none bg-gradient-to-b from-card/80 to-card/40 backdrop-blur-sm hover:from-card/90 hover:to-card/50 transition-all duration-300", className)}>
+      <CardContent className="p-6">
+        <div className="grid grid-cols-[1fr,auto] gap-4">
+          <div className="space-y-1">
+            <div className="text-base font-semibold">{day}</div>
+            <div className="text-xs text-muted-foreground">{date}</div>
+          </div>
+          
+          <div className="flex flex-col items-end">
+            <div className="text-lg font-bold">
+              {displayHigh}°{temperatureUnit === "imperial" ? "F" : "C"}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {displayLow}°{temperatureUnit === "imperial" ? "F" : "C"}
+            </div>
           </div>
 
-          <div className="flex items-center justify-between w-full">
-            <MoonPhase phase={moonPhase} size="sm" />
-            <div className="text-xs text-muted-foreground">
-              {precipitation > 0 ? `${precipitation}% precip.` : "No precipitation"}
+          <div className="col-span-2 flex items-center gap-3 mt-2">
+            <WeatherIcon condition={condition} size={32} />
+            <div className="flex-1 flex items-center justify-between">
+              <MoonPhase phase={moonPhase} size="sm" />
+              <div className="text-xs bg-muted/50 px-2 py-1 rounded-full">
+                {precipitation > 0 ? `${precipitation}%` : "0%"}
+              </div>
             </div>
           </div>
         </div>

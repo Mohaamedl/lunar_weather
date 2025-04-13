@@ -3,91 +3,170 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { submitReport } from "@/lib/actions"
+import { sendConfirmationEmail } from "@/lib/email"
+import { confirmationCodeSchema, reportFormSchema } from "@/lib/validation"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { AlertCircle, CheckCircle, Loader2 } from "lucide-react"
-import { useState } from "react"
+import Link from "next/link"
+import { useEffect, useState } from "react"
+import ReCAPTCHA from "react-google-recaptcha"
+import { useForm } from "react-hook-form"
 
 export function ReportForm() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    reportType: "bug", 
-    description: "",
-    location: "",
-    device: "",
-    browser: "",
-  })
-
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState(null)
   const [emailSent, setEmailSent] = useState(false)
   const [confirmationCode, setConfirmationCode] = useState("")
   const [userCode, setUserCode] = useState("")
+  const [recaptchaToken, setRecaptchaToken] = useState(null)
 
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+  const form = useForm({
+    resolver: zodResolver(reportFormSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      reportType: "bug",
+      description: "",
+      location: "",
+      device: "",
+      browser: "",
+      acceptTerms: false,
+    },
+    mode: "all"
+  });
 
-  const handleSelectChange = (name, value) => {
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+  // Load cached form data on mount
+  useEffect(() => {
+    try {
+      const cached = localStorage.getItem('report-form-data')
+      if (cached) {
+        const parsedData = JSON.parse(cached)
+        Object.keys(parsedData).forEach(key => {
+          form.setValue(key, parsedData[key])
+        })
+      }
+    } catch (error) {
+      console.error("Error loading cached form data:", error)
+    }
+  }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+  // Save form data to cache when it changes
+  useEffect(() => {
+    const formData = form.getValues()
+    localStorage.setItem('report-form-data', JSON.stringify(formData))
+  }, [form.watch()])
+
+  const {
+    formState: { errors, isValid, isDirty },
+    handleSubmit,
+    watch,
+    trigger,
+    setValue,
+    register
+  } = form;
+
+  const handleRecaptchaError = () => {
+    setSubmitStatus({
+      type: "error",
+      message: "reCAPTCHA verification failed. Please try again."
+    });
+  };
+
+  const handleSubmitForm = async (data) => {
+    // Force validation of all fields
+    const isValidForm = await trigger();
+
+    if (!isValidForm) {
+      setSubmitStatus({
+        type: "error",
+        message: "Please fill out all required fields correctly"
+      });
+      return;
+    }
+
+    if (!recaptchaToken) {
+      setSubmitStatus({
+        type: "error",
+        message: "Please complete the reCAPTCHA verification"
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
 
     try {
-      // First, send a confirmation email
       if (!emailSent) {
-        // Generate a random 6-digit confirmation code
         const code = Math.floor(100000 + Math.random() * 900000).toString()
         setConfirmationCode(code)
 
-        // Simulate email sending (in production, this would be a real Server Action)
-        await new Promise((resolve) => setTimeout(resolve, 1500))
+        try {
+          const emailResult = await sendConfirmationEmail({
+            to: data.email,
+            name: data.name,
+            code: code
+          })
 
-        setEmailSent(true)
-        setSubmitStatus({
-          type: "info",
-          message: "We've sent a confirmation code to your email. Please check and enter the code below.",
-        })
+          if (!emailResult.success) {
+            throw new Error(emailResult.error || "Failed to send confirmation email")
+          }
+
+          setEmailSent(true)
+          setSubmitStatus({
+            type: "info",
+            message: "Please check your email for the confirmation code.",
+          })
+        } catch (emailError) {
+          console.error("Email error:", emailError)
+          setSubmitStatus({
+            type: "error",
+            message: "Failed to send confirmation email. Please try again."
+          })
+          return
+        }
       } else {
-        // Verify confirmation code
+        const codeValidation = confirmationCodeSchema.safeParse({ code: userCode })
+        
+        if (!codeValidation.success) {
+          setSubmitStatus({
+            type: "error",
+            message: "Invalid confirmation code format",
+          })
+          return
+        }
+
         if (userCode !== confirmationCode) {
           setSubmitStatus({
             type: "error",
-            message: "Incorrect confirmation code. Please try again.",
+            message: "Incorrect confirmation code",
           })
-        } else {
-          // Submit the report
-          const result = await submitReport(formData)
+          return
+        }
 
-          if (result.success) {
-            setSubmitStatus({
-              type: "success",
-              message: "Your report has been submitted successfully. Thank you for helping us improve Lunar Weather!",
-            })
-            // Clear form
-            setFormData({
-              name: "",
-              email: "",
-              reportType: "bug",
-              description: "",
-              location: "",
-              device: "",
-              browser: "",
-            })
-            setEmailSent(false)
-            setConfirmationCode("")
-            setUserCode("")
-          } else {
-            throw new Error(result.error || "Error submitting report")
-          }
+        const result = await submitReport({
+          ...data,
+          recaptchaToken
+        })
+
+        if (result.success) {
+          setSubmitStatus({
+            type: "success",
+            message: "Your report has been submitted successfully. Thank you for helping us improve Lunar Weather!",
+          })
+          // Clear form
+          form.reset()
+          setEmailSent(false)
+          setConfirmationCode("")
+          setUserCode("")
+          // Clear cache on successful submission
+          localStorage.removeItem('report-form-data')
+        } else {
+          throw new Error(result.error || "Error submitting report")
         }
       }
     } catch (error) {
@@ -99,7 +178,13 @@ export function ReportForm() {
     } finally {
       setIsSubmitting(false)
     }
-  }
+  };
+
+  // Clear cache when form is reset
+  const handleReset = () => {
+    form.reset();
+    localStorage.removeItem('report-form-data');
+  };
 
   return (
     <Card className="border-none bg-card/60 backdrop-blur-sm">
@@ -139,7 +224,7 @@ export function ReportForm() {
           </Alert>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-6">
           {!emailSent ? (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -148,11 +233,15 @@ export function ReportForm() {
                   <Input
                     id="name"
                     name="name"
-                    value={formData.name}
-                    onChange={handleChange}
+                    {...register("name")}
                     placeholder="Your name"
                     required
+                    aria-invalid={!!errors.name}
+                    className={errors.name ? "border-red-500" : ""}
                   />
+                  {errors.name && (
+                    <p className="text-sm text-red-500">{errors.name.message}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -161,20 +250,26 @@ export function ReportForm() {
                     id="email"
                     name="email"
                     type="email"
-                    value={formData.email}
-                    onChange={handleChange}
+                    {...register("email")}
                     placeholder="your.email@example.com"
                     required
+                    aria-invalid={!!errors.email}
+                    className={errors.email ? "border-red-500" : ""}
                   />
+                  {errors.email && (
+                    <p className="text-sm text-red-500">{errors.email.message}</p>
+                  )}
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="reportType">Report Type</Label>
                 <Select 
-              
-                  value={formData.reportType}
-                  onValueChange={(value) => handleSelectChange("reportType", value)}
+                  value={watch("reportType")}
+                  onValueChange={(value) => {
+                    setValue("reportType", value);
+                    trigger("reportType");
+                  }}
                   required
                 >
                   <SelectTrigger id="reportType">
@@ -188,6 +283,9 @@ export function ReportForm() {
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.reportType && (
+                  <p className="text-sm text-red-500">{errors.reportType.message}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -195,12 +293,16 @@ export function ReportForm() {
                 <Textarea
                   id="description"
                   name="description"
-                  value={formData.description}
-                  onChange={handleChange}
+                  {...register("description")}
                   placeholder="Describe the issue in detail. Include steps to reproduce if applicable."
                   rows={5}
                   required
+                  aria-invalid={!!errors.description}
+                  className={errors.description ? "border-red-500" : ""}
                 />
+                {errors.description && (
+                  <p className="text-sm text-red-500">{errors.description.message}</p>
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -209,8 +311,7 @@ export function ReportForm() {
                   <Input
                     id="location"
                     name="location"
-                    value={formData.location}
-                    onChange={handleChange}
+                    {...register("location")}
                     placeholder="E.g., New York, USA"
                   />
                 </div>
@@ -220,8 +321,7 @@ export function ReportForm() {
                   <Input
                     id="device"
                     name="device"
-                    value={formData.device}
-                    onChange={handleChange}
+                    {...register("device")}
                     placeholder="E.g., iPhone 13, Desktop"
                   />
                 </div>
@@ -231,10 +331,45 @@ export function ReportForm() {
                   <Input
                     id="browser"
                     name="browser"
-                    value={formData.browser}
-                    onChange={handleChange}
+                    {...register("browser")}
                     placeholder="E.g., Chrome, Safari"
                   />
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <ReCAPTCHA
+                  sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+                  onChange={setRecaptchaToken}
+                  onError={handleRecaptchaError}
+                  onExpired={() => setRecaptchaToken(null)}
+                />
+              </div>
+
+              <div className="flex items-start space-x-2">
+                <Checkbox
+                  id="acceptTerms"
+                  checked={watch('acceptTerms')}
+                  onCheckedChange={(checked) => {
+                    setValue('acceptTerms', checked);
+                    trigger('acceptTerms');
+                  }}
+                  aria-invalid={!!errors.acceptTerms}
+                />
+                <div className="space-y-1">
+                  <label htmlFor="acceptTerms" className="text-sm">
+                    I agree to the{" "}
+                    <Link href="/terms" className="underline">
+                      Terms of Service
+                    </Link>
+                    {" "}and{" "}
+                    <Link href="/privacy-policy" className="underline">
+                      Privacy Policy
+                    </Link>
+                  </label>
+                  {errors.acceptTerms && (
+                    <p className="text-sm text-red-500">{errors.acceptTerms.message}</p>
+                  )}
                 </div>
               </div>
             </>
@@ -242,7 +377,7 @@ export function ReportForm() {
             <div className="space-y-4">
               <div className="bg-secondary/30 p-4 rounded-lg">
                 <p className="text-sm">
-                  We've sent a confirmation code to <strong>{formData.email}</strong>. Please check your
+                  We've sent a confirmation code to <strong>{watch("email")}</strong>. Please check your
                   inbox and enter the code below to confirm your report submission.
                 </p>
                 <p className="text-xs text-muted-foreground mt-2">
@@ -271,16 +406,18 @@ export function ReportForm() {
                 Back
               </Button>
             )}
-            <Button type="submit" className="ml-auto" disabled={isSubmitting}>
+            <Button 
+              type="submit" 
+              className="w-full"
+              disabled={isSubmitting}
+            >
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   {emailSent ? "Verifying..." : "Sending..."}
                 </>
-              ) : emailSent ? (
-                "Confirm & Submit"
               ) : (
-                "Submit Report"
+                emailSent ? "Confirm & Submit" : "Submit Report"
               )}
             </Button>
           </CardFooter>

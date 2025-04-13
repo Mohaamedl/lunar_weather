@@ -1,64 +1,55 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
-import type { JSX } from "react"
+import { Hemisphere, LunarPhase, Moon } from "lunarphase-js"
 
 interface MoonPhaseProps {
-  phase: number // 0-1 representing new moon (0) to full moon (0.5) to new moon (1)
-  size?: "sm" | "md" | "lg" | "xl"
+  phase: number
+  size?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" // added new sizes
   className?: string
+  hemisphere?: "northern" | "southern"
 }
 
-export function MoonPhase({ phase, size = "md", className }: MoonPhaseProps) {
-  const [moonPhaseElement, setMoonPhaseElement] = useState<JSX.Element | null>(null)
-
+export function MoonPhase({ 
+  phase,
+  size = "md", 
+  className,
+  hemisphere = "northern" 
+}: MoonPhaseProps) {
   const sizeMap = {
-    sm: "w-8 h-8",
-    md: "w-16 h-16",
-    lg: "w-24 h-24",
-    xl: "w-40 h-40",
+    sm: "text-4xl",
+    md: "text-6xl",
+    lg: "text-8xl",
+    xl: "text-[12rem]",
+    "2xl": "text-[16rem]",
+    "3xl": "text-[20rem]", // very large size
   }
 
-  useEffect(() => {
-    // Normalize phase to 0-1
-    const normalizedPhase = phase % 1
+  // Convert phase (0-1) to lunar phase enum
+  const getLunarPhase = (phase: number): LunarPhase => {
+    if (phase < 0.03 || phase > 0.97) return LunarPhase.NEW
+    if (phase < 0.22) return LunarPhase.WAXING_CRESCENT
+    if (phase < 0.28) return LunarPhase.FIRST_QUARTER
+    if (phase < 0.47) return LunarPhase.WAXING_GIBBOUS
+    if (phase < 0.53) return LunarPhase.FULL
+    if (phase < 0.72) return LunarPhase.WANING_GIBBOUS
+    if (phase < 0.78) return LunarPhase.LAST_QUARTER
+    return LunarPhase.WANING_CRESCENT
+  }
 
-    // Calculate shadow position based on moon phase
-    const shadowPosition =
-      normalizedPhase <= 0.5
-        ? -50 + normalizedPhase * 200 // 0 to 0.5 moves shadow from left to right
-        : 50 - (normalizedPhase - 0.5) * 200 // 0.5 to 1 moves shadow from right to left
+  // Get emoji for the specific phase
+  const emoji = Moon.emojiForLunarPhase(
+    getLunarPhase(phase),
+    { hemisphere: hemisphere === "northern" ? Hemisphere.NORTHERN : Hemisphere.SOUTHERN }
+  )
 
-    // Determine if waxing (growing) or waning (shrinking)
-    const isWaxing = normalizedPhase <= 0.5
-
-    // Create moon phase visualization
-    const moonElement = (
-      <div className={cn("relative rounded-full overflow-hidden", sizeMap[size], className)}>
-        {/* Moon base */}
-        <div className="absolute inset-0 rounded-full bg-gray-200"></div>
-
-        {/* Shadow overlay */}
-        <div
-          className={cn("absolute inset-0 rounded-full bg-background", isWaxing ? "left-0" : "right-0")}
-          style={{
-            width: "100%",
-            transform: `translateX(${shadowPosition}%)`,
-          }}
-        ></div>
-
-        {/* Moon texture overlay */}
-        <div
-          className="absolute inset-0 rounded-full opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))]
-          from-transparent via-gray-500 to-transparent"
-        ></div>
-      </div>
-    )
-
-    setMoonPhaseElement(moonElement)
-  }, [phase, size, className])
-
-  return moonPhaseElement
+  return (
+    <div 
+      className={cn("flex items-center justify-center", sizeMap[size], className)}
+      title={`${Math.round(phase * 100)}% illuminated`}
+    >
+      {emoji}
+    </div>
+  )
 }
 

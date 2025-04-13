@@ -1,8 +1,9 @@
-import { MoonPhase } from "@/components/moon-phase"
 import { MoonObservation } from "@/components/moon-observation"
+import { MoonPhase } from "@/components/moon-phase"
+import { MoonPhotographyGuide } from "@/components/moon-photography-guide"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Moon, Star, Calendar } from "lucide-react"
+import { Calendar, Moon, Star } from "lucide-react"
 
 // Mock data - in a real app, this would come from an API
 const moonData = {
@@ -18,23 +19,23 @@ const moonData = {
 const observationSpots = [
   {
     name: "Central Park",
-    distance: "1.2 miles",
+    distance: "1.9 km",  
     lightPollution: "High",
-    elevation: "20 ft",
+    elevation: "6 m", 
     bestTime: "Early evening",
   },
   {
     name: "Brooklyn Heights Promenade",
-    distance: "3.5 miles",
+    distance: "5.6 km",
     lightPollution: "Medium",
-    elevation: "66 ft",
+    elevation: "20 m",
     bestTime: "After 9 PM",
   },
   {
     name: "Floyd Bennett Field",
-    distance: "12.3 miles",
+    distance: "19.8 km",
     lightPollution: "Low",
-    elevation: "15 ft",
+    elevation: "4.5 m",
     bestTime: "After 10 PM",
   },
 ]
@@ -83,22 +84,20 @@ export default function MoonPage() {
         <TabsContent value="current" className="space-y-6">
           <Card className="border-none bg-card/60 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle>First Quarter Moon</CardTitle>
-              <CardDescription>{moonData.illumination} illuminated</CardDescription>
+              <CardTitle className="text-2xl">First Quarter Moon</CardTitle>
+              <CardDescription className="text-lg">{moonData.illumination} illuminated</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col md:flex-row items-center gap-8">
-                <div className="flex-shrink-0 flex items-center justify-center">
-                  <MoonPhase phase={moonData.phase} size="xl" />
+              <div className="flex flex-col items-center gap-8">
+                <div className="w-full flex justify-center p-8">
+                  <MoonPhase phase={moonData.phase} size="xl" className="text-[200px]" />
                 </div>
-
-                <div className="space-y-4 flex-grow">
-                  <p className="text-sm">
+                <div className="text-center space-y-4 max-w-2xl">
+                  <p className="text-lg">
                     The First Quarter Moon rises around noon and sets around midnight, making it visible in the
                     afternoon and evening. At this phase, half of the moon's face is illuminated from our perspective on
                     Earth.
                   </p>
-
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-secondary/30 p-3 rounded-lg">
                       <h4 className="text-sm font-medium mb-1">Moon Age</h4>
@@ -128,49 +127,69 @@ export default function MoonPage() {
                 <Calendar className="mr-2 h-5 w-5 text-accent" />
                 Lunar Calendar
               </CardTitle>
-              <CardDescription>Upcoming moon phases</CardDescription>
+              <CardDescription>Moon phase progression</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-8">
-                    <MoonPhase phase={0} size="md" />
-                    <div>
-                      <h4 className="font-medium">New Moon</h4>
-                      <p className="text-sm text-muted-foreground">{moonData.nextNewMoon}</p>
+              <div className="space-y-6">
+                {/* Next phases */}
+                <div className="grid gap-4">
+                  <div className="p-4 bg-secondary/30 rounded-lg flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <MoonPhase phase={0} size="md" />
+                      <div>
+                        <h4 className="font-medium mb-1">New Moon</h4>
+                        <p className="text-sm text-muted-foreground">{moonData.nextNewMoon}</p>
+                      </div>
+                    </div>
+                    <div className="text-sm text-muted-foreground px-4 py-1 bg-secondary/50 rounded-full">
+                      In 22 days
                     </div>
                   </div>
-                  <div className="text-sm text-muted-foreground">In 22 days</div>
-                </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-8">
-                    <MoonPhase phase={0.5} size="md" />
-                    <div>
-                      <h4 className="font-medium">Full Moon</h4>
-                      <p className="text-sm text-muted-foreground">{moonData.nextFullMoon}</p>
+                  <div className="p-4 bg-secondary/30 rounded-lg flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <MoonPhase phase={0.5} size="md" />
+                      <div>
+                        <h4 className="font-medium mb-1">Full Moon</h4>
+                        <p className="text-sm text-muted-foreground">{moonData.nextFullMoon}</p>
+                      </div>
+                    </div>
+                    <div className="text-sm text-muted-foreground px-4 py-1 bg-secondary/50 rounded-full">
+                      In 8 days
                     </div>
                   </div>
-                  <div className="text-sm text-muted-foreground">In 8 days</div>
                 </div>
 
-                <div className="relative pt-6">
-                  <div className="absolute left-0 right-0 top-0 h-px bg-border"></div>
-                  <div className="flex justify-between">
-                    {[0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875].map((phase, index) => (
+                {/* Moon phase timeline */}
+                <div className="relative pt-8 mt-8">
+                  <div className="absolute left-0 right-0 top-0 h-px bg-border/50"></div>
+                  <div className="grid grid-cols-8 gap-1">
+                    {[
+                      { phase: 0, label: "New Moon" },          // New Moon
+                      { phase: 0.125, label: "Waxing Crescent" },
+                      { phase: 0.25, label: "First Quarter" },  // First Quarter
+                      { phase: 0.375, label: "Waxing Gibbous" },
+                      { phase: 0.5, label: "Full Moon" },       // Full Moon
+                      { phase: 0.625, label: "Waning Gibbous" },
+                      { phase: 0.75, label: "Last Quarter" },   // Last Quarter
+                      { phase: 0.875, label: "Waning Crescent" }
+                    ].map(({ phase, label }, index) => (
                       <div key={index} className="flex flex-col items-center">
-                        <MoonPhase phase={phase} size="sm" />
-                        <div className="text-xs text-muted-foreground mt-2">
-                          {index === 0 && "New"}
-                          {index === 2 && "First Quarter"}
-                          {index === 4 && "Full"}
-                          {index === 6 && "Last Quarter"}
+                        <div className="mb-2">
+                          <MoonPhase phase={phase} size="sm" date={new Date()} />
+                        </div>
+                        <div className="text-xs text-center text-muted-foreground mt-2 px-1">
+                          {label}
                         </div>
                       </div>
                     ))}
                   </div>
-                  <div className="absolute left-1/4 top-0 h-4 w-px bg-primary"></div>
-                  <div className="absolute left-1/4 -top-6 text-xs text-primary font-medium">Current</div>
+                  
+                  {/* Current phase indicator */}
+                  <div className="absolute left-1/4 -top-2 w-px h-4 bg-primary"></div>
+                  <div className="absolute left-1/4 transform -translate-x-1/2 -top-8 px-2 py-1 rounded bg-primary text-xs font-medium">
+                    Current
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -179,48 +198,7 @@ export default function MoonPage() {
 
         <TabsContent value="observation" className="space-y-6">
           <MoonObservation observationSpots={observationSpots} upcomingEvents={upcomingEvents} />
-
-          <Card className="border-none bg-card/60 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle>Moon Photography Tips</CardTitle>
-              <CardDescription>Capture stunning lunar images</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4">
-                <div className="bg-secondary/30 p-4 rounded-lg">
-                  <h3 className="text-sm font-medium mb-2">Equipment Recommendations</h3>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Use a telephoto lens (at least 200mm) or telescope adapter</li>
-                    <li>• Tripod is essential for stability</li>
-                    <li>• Remote shutter release to prevent camera shake</li>
-                    <li>• Consider a moon filter to reduce glare during full moon</li>
-                  </ul>
-                </div>
-
-                <div className="bg-secondary/30 p-4 rounded-lg">
-                  <h3 className="text-sm font-medium mb-2">Camera Settings</h3>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Use manual mode for full control</li>
-                    <li>• Start with ISO 100-400</li>
-                    <li>• Aperture around f/8 to f/11</li>
-                    <li>• Shutter speed 1/100 to 1/250 (varies with phase)</li>
-                    <li>• Use manual focus set to infinity</li>
-                  </ul>
-                </div>
-
-                <div className="bg-secondary/30 p-4 rounded-lg">
-                  <h3 className="text-sm font-medium mb-2">Best Practices</h3>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• First quarter and last quarter moons often show more detail due to shadows</li>
-                    <li>• Shoot RAW for better post-processing flexibility</li>
-                    <li>• Use the "Looney 11 Rule": f/11, ISO 100, shutter speed = 1/ISO</li>
-                    <li>• Consider bracketing exposures to ensure you capture details</li>
-                    <li>• Allow your equipment to acclimate to outside temperature</li>
-                  </ul>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <MoonPhotographyGuide />
         </TabsContent>
       </Tabs>
     </div>

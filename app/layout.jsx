@@ -1,11 +1,10 @@
+import { CookieConsent } from "@/components/cookie-consent"
 import Footer from "@/components/footer"
 import Navbar from "@/components/navbar"
 import { ParticleBackground } from "@/components/particle-background"
 import { ThemeProvider } from "@/components/theme-provider"
 import { LocationProvider } from "@/contexts/location-context"
-import  { Metadata } from "next"
 import { Inter, Montserrat } from "next/font/google"
-import  React from "react"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
@@ -18,8 +17,8 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en"  suppressHydrationWarning>
-      <body className={`${inter.variable} ${montserrat.variable} font-sans antialiased`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${inter.variable} ${montserrat.variable} font-sans antialiased`} suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
           <LocationProvider>
             <div className="flex flex-col min-h-screen bg-gradient-to-b from-background to-background-secondary">
@@ -32,6 +31,7 @@ export default function RootLayout({ children }) {
             </div>
           </LocationProvider>
         </ThemeProvider>
+        <CookieConsent />
       </body>
     </html>
   )

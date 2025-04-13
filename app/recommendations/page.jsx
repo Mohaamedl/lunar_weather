@@ -1,11 +1,11 @@
 import { OutfitRecommendation } from "@/components/outfit-recommendation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Shirt, Footprints, Umbrella, Sun, Wind, Droplets } from "lucide-react"
+import { Droplets, Footprints, Shirt, Sun, Umbrella, Wind } from "lucide-react"
 
 // Mock data - in a real app, this would come from an API
 const weatherData = {
-  temperature: 72,
+  temperature: 22, 
   condition: "Clear",
   windSpeed: 8,
   precipitation: 0,
@@ -104,7 +104,7 @@ export default function RecommendationsPage() {
                       <Wind className="h-5 w-5 mb-2 text-green-400" />
                       <span className="text-sm font-medium">Wind Chill</span>
                       <span className="text-xs text-muted-foreground">None</span>
-                      <span className="text-lg font-bold mt-1">72°F</span>
+                      <span className="text-lg font-bold mt-1">22°C</span>
                     </div>
                     <div className="bg-secondary/30 p-3 rounded-lg flex flex-col items-center">
                       <Droplets className="h-5 w-5 mb-2 text-blue-400" />

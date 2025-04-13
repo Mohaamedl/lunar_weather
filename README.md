@@ -1,67 +1,61 @@
-# LunarWeather
+# 🌙 Lunar Weather
 
-A modern weather application built with React that provides detailed weather information with a clean and intuitive interface, inspired by lunar themes and focused on lifestyle enhancement.
+A celestial weather experience with moon-themed aesthetics. Track weather conditions, moon phases, and get personalized recommendations.
 
-## Features
+## ✨ Features
 
-- 🌙 Lunar-Inspired Design
-  - Dynamic UI that changes with moon phases
-  - Celestial animations and transitions
-  - Constellation visibility predictions
+- Real-time weather data with OpenWeather API integration 
+- Moon phase tracking and lunar calendar
+- Weather forecasts with temperature, precipitation, and wind data
+- Outfit recommendations based on current conditions
+- Celestial event tracking and observation guides
+- Dark mode optimized UI with space-themed design
+- Location-based personalization
+- Responsive design for all devices
 
-- 🎯 Smart Recommendations
-  - AI-powered outfit suggestions based on weather
-  - Activity recommendations synced with weather conditions
-  - Best times for outdoor activities based on weather patterns
+## 🚀 Getting Started
 
-- 🌡️ Advanced Weather Features
-  - Real-time weather data display
-  - UV index and air quality monitoring
-  - Precipitation probability with lunar influence analysis
+### Prerequisites
 
-- 🎨 Unique User Experience
-  - Lunar calendar integration
-  - Night sky visibility forecast
-  - Weather-based meditation recommendations
+- Node.js 18.0.0 or later
+- pnpm (recommended) or npm
 
-- ⚙️ Technical Features
-  - Responsive design
-  - Dynamic weather icons
-  - Light/Dark mode with automatic lunar phase switching
-  - Offline capability for basic features
-
-## Tech Stack
-
-- React
-- Next.js
-- Lucide React (for icons)
-- TailwindCSS
-- ShadcnUI
-
-## Getting Started
+### Installation
 
 1. Clone the repository:
-```bash
+```bash 
 git clone https://github.com/mohaamedl/lunarweather.git
 cd lunarweather
 ```
 
 2. Install dependencies:
 ```bash
-npm install
+pnpm install
 ```
 
-3. Create a `.env` file with your API keys:
+3. Create .env.local file with required environment variables:
+```env
+NEXT_PUBLIC_OPENWEATHER_API_KEY=your_api_key
+NEXT_PUBLIC_RECAPTCHA_SITE_KEY=your_recaptcha_key
+RESEND_API_KEY=your_resend_key
+```
+
+4. Start the development server:
 ```bash
-NEXT_PUBLIC_WEATHER_API_KEY=your_api_key_here
+pnpm dev
 ```
 
-4. Run the development server:
-```bash
-npm run dev
-```
+## 🛠️ Tech Stack
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+- **Framework**: Next.js 14 with App Router
+- **Styling**: Tailwind CSS + shadcn/ui
+- **State Management**: React Context
+- **APIs**: OpenWeather API
+- **Security**: reCAPTCHA
+- **Email**: Resend
+- **Deployment**: Vercel
+
+## 📁 Project Structure
 
 ## Contributing
 

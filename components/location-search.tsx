@@ -2,12 +2,12 @@
 
 import type React from "react"
 
-import { useState } from "react"
-import { useLocation } from "@/contexts/location-context"
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Search, Loader2 } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { useLocation } from "@/contexts/location-context"
 import { getCurrentWeather } from "@/lib/weather-service"
+import { Loader2, Search } from "lucide-react"
+import { useState } from "react"
 
 export function LocationSearch() {
   const { setLocation } = useLocation()
@@ -41,19 +41,35 @@ export function LocationSearch() {
   }
 
   return (
-    <form onSubmit={handleSearch} className="flex w-full max-w-sm items-center space-x-2 relative">
+    <form 
+      onSubmit={handleSearch} 
+      className="flex w-[180px] sm:w-[200px] md:w-[250px] lg:w-[300px] items-center space-x-2 relative"
+    >
       <Input
         type="text"
-        placeholder="Search city (e.g., London, Paris)"
+        placeholder="Search city..."
         value={searchInput}
         onChange={(e) => setSearchInput(e.target.value)}
-        className="bg-secondary/30"
+        className="bg-secondary/30 w-full"
       />
-      <Button type="submit" size="icon" disabled={isSearching}>
-        {isSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+      <Button 
+        type="submit" 
+        size="icon" 
+        disabled={isSearching}
+        className="relative right-1 top-1/2 -translate-y-1/2 h-8 w-8"
+      >
+        {isSearching ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <Search className="h-4 w-4" />
+        )}
       </Button>
 
-      {error && <div className="absolute -bottom-6 left-0 text-xs text-red-400">{error}</div>}
+      {error && (
+        <div className="absolute -bottom-6 left-0 text-xs text-red-400 w-full truncate">
+          {error}
+        </div>
+      )}
     </form>
   )
 }
